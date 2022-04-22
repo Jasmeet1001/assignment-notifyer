@@ -1,6 +1,7 @@
 import json
 import requests as rq
 import time
+from plyer import notification
 from bs4 import BeautifulSoup as bS
 
 def login_info(user_id, password):
@@ -33,7 +34,11 @@ def login_info(user_id, password):
     return s
 
 def get_assignments(link, session):
-    assignment = session.get(f"https://www.icloudemserp.com/corecampus/student/{link}")
+    try:
+        assignment = session.get(f"https://www.icloudemserp.com/corecampus/student/{link}")
+    except:
+        print("Please! Check your internet connection.")
+
     assignment_soup = bS(assignment.content, 'lxml')
         
     nester = {}
@@ -68,40 +73,28 @@ def get_assignments(link, session):
             index_val = list(map(int, list(dict.fromkeys(assig_list))))
             
             if (index > index_val[0]):
-                print(f"You have {index - index_val[0]} new assignments.")
-                for new in range(index - index_val[0]):    
-                    count_new = 0
-                    for val in sorted_dict[index - new]:    
-                        count_new += 1
-                        match (count_new):
-                            case 1:
-                                print(f"Due Date: {val}")
-                            case 2:
-                                print(f"Subject: {val}")
-                            case 3:
-                                print(f"Assignment Name: {val}\n")
-                                count_new = 0
+                notification.notify(
+                    title = "ERP assignment notifier",
+                    message = f"You have {index - index_val[0]} new assignments.",
+                    timeout = 3
+                )
             else:
-                print("You have no new assignments.")
+                notification.notify(
+                    title = "ERP assignment notifier",
+                    message = "You have no new assignments.",
+                    timeout = 3
+                )
 
     except FileNotFoundError:
         with open("assignment_list.json", "w") as new_list:
             json.dump(dict(sorted_dict), new_list, indent = 4)
-            count_first = 0
-            for row in sorted_dict.items():
-                for col in row[1]:
-                    count_first += 1
-                    match (count_first):
-                        case 1:
-                            print(f"Due Date: {col}")
-                        case 2:
-                            print(f"Subject: {col}")
-                        case 3:
-                            print(f"Assignment Name: {col}\n")
-                            count_first = 0
-
+            notification.notify(
+                title = "ERP assignment notifier",
+                message = f"Newest assignment:\nDue Date: {sorted_dict[1][0]}\nSubject: {sorted_dict[1][1]}\nAssignment Name: {sorted_dict[1][2]}",
+                timeout = 3
+            )
     index = 0
-    
+
 try:
     with open("usr_word.json", "r") as log:
         login_info_file = json.load(log)
@@ -124,4 +117,3 @@ while True:
     get_assignments(assig_page, login_session)
     interval = 10
     time.sleep(interval)
-    
