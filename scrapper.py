@@ -1,6 +1,7 @@
 import json
 import requests as rq
 import time
+import datetime as dt
 from plyer import notification
 from bs4 import BeautifulSoup as bS
 
@@ -26,12 +27,20 @@ def login_info(user_id, password):
     
     if (request_.url == sucess):
         print("Login Sucessful!!\n")
-        time.sleep(3)
+        time.sleep(2)
     else:
         print("Login Failed!!\n")
         exit()
 
     return s
+
+def is_late(due_date_p):
+    if (len(due_date_p) == 3):
+        due_date_format = f"{due_date_p[2]}-{due_date_p[1]}-{due_date_p[0]}"
+        if (dt.date.today() >= dt.date.fromisoformat(due_date_format)):
+            return True
+        else:
+            return False           
 
 def get_assignments(link, session):
     try:
@@ -44,6 +53,7 @@ def get_assignments(link, session):
     nester = {}
     index = 1
     count = 0
+    skipper = 1
     table_body = assignment_soup.find('table')
         
     for tbl_val in table_body.find_all('a'):
@@ -52,17 +62,30 @@ def get_assignments(link, session):
         if (print_val == '' or print_val == ' ' or print_val == None):
             continue
         else:
-            count += 1
-            match (count):
-                case 1:
-                    nester[index] = [print_val]
-                case 2:
-                    nester[index].append(print_val)
-                case 3:
-                    nester[index].append(print_val)
-                    index += 1
-                    count = 0
-              
+            if (skipper == 1 or skipper == 4):
+                if (skipper == 4):
+                    skipper = 1
+
+                due_date = print_val.split('/')
+                if (is_late(due_date)):
+                    skipper += 1
+                    continue
+                else:
+                    count += 1
+                    match (count):
+                        case 1:
+                            nester[index] = [print_val]
+                        case 2:
+                            nester[index].append(print_val)
+                        case 3:
+                            nester[index].append(print_val)
+                            index += 1
+                            count = 0
+
+            elif (skipper == 2 or skipper == 3):
+                skipper += 1
+                continue
+                
     index = index - 1
     sorted_dict = dict(sorted(nester.items(), reverse = True))
     del nester
@@ -90,7 +113,7 @@ def get_assignments(link, session):
             json.dump(dict(sorted_dict), new_list, indent = 4)
             notification.notify(
                 title = "ERP assignment notifier",
-                message = f"Newest assignment:\nDue Date: {sorted_dict[1][0]}\nSubject: {sorted_dict[1][1]}\nAssignment Name: {sorted_dict[1][2]}",
+                message = f"You have {index} pending assignments\n\nNewest assignment:\nDue Date: {sorted_dict[1][0]}\nSubject: {sorted_dict[1][1]}\nAssignment Name: {sorted_dict[1][2]}",
                 timeout = 3
             )
     index = 0
