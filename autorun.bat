@@ -1,5 +1,8 @@
 @echo off
-set path_exe=%~dp0ERP_Notifier.exe
+
+set path_exe=%~dp0Assignment-Notifier.exe
+set path_cred=%~dp0GetCredentials.exe
+
 reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Run /v Notifier /d %path_exe%
 
-break>"C:\Users\Master\Documents\ERPNotifier\usr_word.txt"
+start "ERP Assignment Notifier" %path_cred%
