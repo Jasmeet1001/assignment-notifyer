@@ -3,6 +3,8 @@ import os
 import requests as rq
 import time
 import datetime as dt
+import sys
+
 from plyer import notification
 from bs4 import BeautifulSoup as bS
 
@@ -38,7 +40,7 @@ def login_info(user_id, password):
                 timeout = 1,
                 app_name = "ERP"
             )
-            exit()
+            sys.exit()
             
     except rq.exceptions.ConnectionError:
         notification.notify(
@@ -47,7 +49,7 @@ def login_info(user_id, password):
             timeout = 3,
             app_name = "ERP"
         )
-        exit()
+        sys.exit()
 
     return s
 
@@ -111,14 +113,14 @@ def get_assignments(link, session):
             if (index > index_val[0]):
                 notification.notify(
                     title = "ERP assignment notifier",
-                    message = f"You have {index - index_val[0]} new assignments.",
+                    message = f"You have {index} pending assignment(s) and {index - index_val[0]} new assignment(s).",
                     timeout = 3,
                     app_name = "ERP"
                 )
             else:
                 notification.notify(
                     title = "ERP assignment notifier",
-                    message = "You have no new assignments.",
+                    message = f"You have {index} pending assignment(s) and no new assignments.",
                     timeout = 3,
                     app_name = "ERP"
                 )
@@ -159,4 +161,4 @@ except FileNotFoundError:
         timeout = 3,
         app_name = "ERP"
     )
-    exit()
+    sys.exit()
