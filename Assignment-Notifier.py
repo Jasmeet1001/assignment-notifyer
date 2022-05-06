@@ -83,7 +83,7 @@ def get_assignments(link, session):
     for assignments in assign_list:
         valid_date_str = is_valid_date(assignments)
         if (valid_date_str[0]):
-            if (not (dt.date.today() >= valid_date_str[1]) and (str(next(table_val_submitted)) == '<i class="far fa-times-circle text-danger"></i>')):
+            if (dt.date.today() <= valid_date_str[1] and (str(next(table_val_submitted)) == '<i class="far fa-times-circle text-danger"></i>')):
                 pending += 1
 
     with open(f"{os.path.expanduser('~')}/Documents/ERPNotifier/usr_word.txt", "r+") as exis_list:
