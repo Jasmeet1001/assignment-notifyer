@@ -9,7 +9,7 @@ from plyer import notification
 from bs4 import BeautifulSoup as bS
 
 def login_info(user_id, password):
-    
+
     s = rq.Session()
 
     sucess = 'https://www.icloudemserp.com:443/corecampus/admin/settings/checktasks_student.php?page=1&refresh=true'
@@ -22,11 +22,11 @@ def login_info(user_id, password):
         'uotpid': '',
         'branchid': '9',
     }
-    
+
     try:
         url_main = s.get('https://www.icloudemserp.com/mrei')
         request_ = s.post('https://www.icloudemserp.com:443/corecampus/checkuser1.php', data = payload)
-        
+
         if (request_.url == sucess):
             notification.notify(
                 title = "ERP assignment notifier",
@@ -34,7 +34,7 @@ def login_info(user_id, password):
                 timeout = 1,
                 app_name = "ERP"
             )
-        
+
         else:
             notification.notify(
                 title = "ERP assignment notifier",
@@ -42,9 +42,9 @@ def login_info(user_id, password):
                 timeout = 1,
                 app_name = "ERP"
             )
-            
+
             sys.exit()
-            
+
     except rq.exceptions.ConnectionError:
         notification.notify(
             title = "ERP assignment notifier",
@@ -52,10 +52,10 @@ def login_info(user_id, password):
             timeout = 3,
             app_name = "ERP"
         )
-        
+
         sys.exit()
 
-    return s          
+    return s
 
 def is_valid_date(due_date_p):
     try:
@@ -63,7 +63,7 @@ def is_valid_date(due_date_p):
         return True, date_str.date()
 
     except ValueError:
-        return False, 1 
+        return False, 1
 
 def get_assignments(link, session):
     assignment = session.get(f"https://www.icloudemserp.com/corecampus/student/{link}")
@@ -88,7 +88,7 @@ def get_assignments(link, session):
 
     with open(f"{os.path.expanduser('~')}/Documents/ERPNotifier/usr_word.txt", "r+") as exis_list:
         stored_list = exis_list.read().split(',')
-            
+
         if (len(stored_list) == 2):
             exis_list.seek(0, 2)
             exis_list.write(f',{table_sNo_length}')
@@ -100,10 +100,10 @@ def get_assignments(link, session):
                 timeout = 3,
                 app_name = "ERP"
             )
-            
+
         elif (len(stored_list) == 3):
             if (table_sNo_length> int(stored_list[-1])):
-                    
+
                 notification.notify(
                     title = "ERP assignment notifier",
                     message = f"You have {pending} assignment(s) and {len(table_sNo_length) - int(stored_list[-1])} new assignment(s).",
@@ -112,7 +112,7 @@ def get_assignments(link, session):
                 )
 
             else:
-                    
+
                 notification.notify(
                     title = "ERP assignment notifier",
                     message = f"You have {pending} pending assignment(s) and no new assignment(s).",
@@ -145,5 +145,5 @@ except FileNotFoundError:
         timeout = 3,
         app_name = "ERP"
     )
-    
+
     sys.exit()
